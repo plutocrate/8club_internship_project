@@ -37,6 +37,8 @@ class _HostMotivationPageState extends ConsumerState<HostMotivationPage> {
     final motivationState = ref.watch(hostMotivationViewModelProvider);
     final viewModel = ref.read(hostMotivationViewModelProvider.notifier);
     final isRecording = motivationState.audioPhase == AudioRecordingPhase.recording;
+    final hasAudioRecorded = motivationState.audioPhase == AudioRecordingPhase.recorded;
+    final hasVideoRecorded = motivationState.videoPath != null;
 
     final double progress = motivationState.canProceed ? 1.0 : 0.5;
 
@@ -126,7 +128,7 @@ class _HostMotivationPageState extends ConsumerState<HostMotivationPage> {
                     ),
                     child: Row(
                       children: [
-                        // Mic Button with spotlight sheen during recording
+                        // Mic Button: active recording sheen, or disabled when audio already recorded
                         AnimatedContainer(
                           duration: const Duration(milliseconds: 200),
                           decoration: isRecording
@@ -144,7 +146,7 @@ class _HostMotivationPageState extends ConsumerState<HostMotivationPage> {
                           child: IconButton(
                             onPressed: isRecording
                                 ? viewModel.stopAudioRecording
-                                : viewModel.startAudioRecording,
+                                : (hasAudioRecorded ? null : viewModel.startAudioRecording),
                             icon: SvgPicture.asset(
                               'assets/icons/mic.svg',
                               width: 16,
@@ -152,21 +154,26 @@ class _HostMotivationPageState extends ConsumerState<HostMotivationPage> {
                               colorFilter: ColorFilter.mode(
                                 isRecording
                                     ? AppColors.textPrimary
-                                    : AppColors.textSecondary,
+                                    : (hasAudioRecorded
+                                        ? AppColors.textTertiary.withValues(alpha: 0.3)
+                                        : AppColors.textSecondary),
                                 BlendMode.srcIn,
                               ),
                             ),
                           ),
                         ),
                         Container(width: 1, height: 24, color: AppColors.borderSubtle),
+                        // Video Button: disabled when video already recorded
                         IconButton(
-                          onPressed: viewModel.recordVideo,
+                          onPressed: hasVideoRecorded ? null : viewModel.recordVideo,
                           icon: SvgPicture.asset(
                             'assets/icons/recorder.svg',
                             width: 16,
                             height: 16,
-                            colorFilter: const ColorFilter.mode(
-                              AppColors.textSecondary,
+                            colorFilter: ColorFilter.mode(
+                              hasVideoRecorded
+                                  ? AppColors.textTertiary.withValues(alpha: 0.3)
+                                  : AppColors.textSecondary,
                               BlendMode.srcIn,
                             ),
                           ),

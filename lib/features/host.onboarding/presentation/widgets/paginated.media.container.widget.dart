@@ -24,7 +24,7 @@ class _PaginatedMediaContainerWidgetState
     extends State<PaginatedMediaContainerWidget> {
   final PageController _pageController = PageController();
   int _currentPage = 0;
-  int _prevPageCount = 0;
+  bool _hadVideo = false;
 
   @override
   void dispose() {
@@ -35,63 +35,61 @@ class _PaginatedMediaContainerWidgetState
   @override
   Widget build(BuildContext context) {
     final isRecording = widget.state.audioPhase == AudioRecordingPhase.recording;
+    final hasRecordedAudio = widget.state.audioPhase == AudioRecordingPhase.recorded;
+    final hasVideo = widget.state.videoPath != null;
+
     final List<Widget> pages = [];
 
-    // Page for live audio recording if currently active
+    // Recording audio takes top priority while active
     if (isRecording) {
-      pages.add(
-        AudioRecorderBarWidget(
-          duration: widget.state.activeRecordingDuration,
-          amplitudes: widget.state.waveformAmplitudes,
-          onStop: widget.viewModel.stopAudioRecording,
-        ),
+      return AudioRecorderBarWidget(
+        duration: widget.state.recordingDuration,
+        amplitudes: widget.state.waveformAmplitudes,
+        onStop: widget.viewModel.stopAudioRecording,
       );
     }
 
-    // Pages for all recorded audio clips
-    for (final item in widget.state.audioRecordings) {
-      final isPlaying = widget.state.playingAudioId == item.id;
+    if (hasRecordedAudio) {
       pages.add(
         AudioPlayerBarWidget(
-          durationText: item.formattedDuration,
-          isPlaying: isPlaying,
+          durationText: widget.state.formattedDuration,
+          isPlaying: widget.state.isPlayingAudio,
           onPlayToggle: () {
-            if (isPlaying) {
+            if (widget.state.isPlayingAudio) {
               widget.viewModel.stopAudioPlayback();
             } else {
-              widget.viewModel.playAudioRecording(item.id, item.path);
+              widget.viewModel.playAudioRecording();
             }
           },
-          onDelete: () => widget.viewModel.deleteAudioRecording(item.id),
+          onDelete: widget.viewModel.deleteAudioRecording,
         ),
       );
     }
 
-    // Pages for all recorded video clips
-    for (final videoPath in widget.state.videoPaths) {
+    if (hasVideo) {
       pages.add(
         VideoPlayerBarWidget(
-          videoPath: videoPath,
-          onDelete: () => widget.viewModel.deleteVideoRecording(videoPath),
+          videoPath: widget.state.videoPath,
+          onDelete: widget.viewModel.deleteVideoRecording,
         ),
       );
     }
 
     if (pages.isEmpty) return const SizedBox.shrink();
 
-    // Auto animate to newest page if items increased
-    if (pages.length > _prevPageCount && _prevPageCount > 0) {
+    // Auto-scroll to newly recorded video if video was just added
+    if (hasVideo && !_hadVideo && pages.length > 1) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (_pageController.hasClients) {
           _pageController.animateToPage(
-            pages.length - 1,
+            1,
             duration: const Duration(milliseconds: 300),
             curve: Curves.easeOutCubic,
           );
         }
       });
     }
-    _prevPageCount = pages.length;
+    _hadVideo = hasVideo;
 
     if (pages.length == 1) {
       return pages.first;
