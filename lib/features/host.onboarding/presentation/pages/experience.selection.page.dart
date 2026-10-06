@@ -5,6 +5,7 @@ import '../../../../core/constants/app.gradients.dart';
 import '../../../../core/constants/app.text.styles.dart';
 import '../providers/experiences.provider.dart';
 import '../viewmodels/experience.selection.viewmodel.dart';
+import '../viewmodels/host.motivation.viewmodel.dart';
 import '../widgets/continuous.button.widget.dart';
 import '../widgets/experience.stamp.widget.dart';
 import '../widgets/focused.text.field.container.widget.dart';
@@ -36,6 +37,7 @@ class _ExperienceSelectionPageState
   void _onCancelPressed() {
     _textController.clear();
     ref.read(experienceSelectionViewModelProvider.notifier).resetSelection();
+    ref.read(hostMotivationViewModelProvider.notifier).resetMotivation();
   }
 
   @override
