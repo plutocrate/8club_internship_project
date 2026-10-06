@@ -6,21 +6,23 @@ import 'package:eightclub/features/host.onboarding/presentation/providers/experi
 import 'package:eightclub/features/host.onboarding/data/models/experience.model.dart';
 
 void main() {
+  final mockExperiences = [
+    const Experience(
+      id: 1,
+      name: 'Party',
+      tagline: '',
+      description: 'Test',
+      imageUrl: '',
+      iconUrl: '',
+      order: 1,
+    ),
+  ];
+
   testWidgets('App smoke test', (WidgetTester tester) async {
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
-          experiencesProvider.overrideWith((ref) async => [
-                const Experience(
-                  id: 1,
-                  name: 'Party',
-                  tagline: '',
-                  description: 'Test',
-                  imageUrl: '',
-                  iconUrl: '',
-                  order: 1,
-                ),
-              ]),
+          experiencesProvider.overrideWith((ref) async => mockExperiences),
         ],
         child: const EightClubApp(),
       ),
