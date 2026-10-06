@@ -76,18 +76,19 @@ class ExperienceSelectionPage extends ConsumerWidget {
               ),
               const SizedBox(height: 20),
               SizedBox(
-                height: 130,
+                height: 150,
                 child: experiencesAsync.when(
                   data: (experiences) {
                     return ListView.separated(
                       scrollDirection: Axis.horizontal,
                       itemCount: experiences.length,
-                      separatorBuilder: (context, index) => const SizedBox(width: 12),
+                      separatorBuilder: (context, index) => const SizedBox(width: 8),
                       itemBuilder: (context, index) {
                         final item = experiences[index];
                         final isSelected = selectionState.selectedIds.contains(item.id);
                         return ExperienceStampWidget(
                           experience: item,
+                          index: index,
                           isSelected: isSelected,
                           onTap: () => viewModel.toggleExperience(item.id),
                         );

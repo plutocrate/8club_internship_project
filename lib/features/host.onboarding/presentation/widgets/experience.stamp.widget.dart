@@ -1,17 +1,19 @@
+import 'dart:math' as math;
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import '../../../../core/constants/app.colors.dart';
-import '../../../../core/constants/app.text.styles.dart';
 import '../../data/models/experience.model.dart';
 
 class ExperienceStampWidget extends StatefulWidget {
   final Experience experience;
+  final int index;
   final bool isSelected;
   final VoidCallback onTap;
 
   const ExperienceStampWidget({
     super.key,
     required this.experience,
+    required this.index,
     required this.isSelected,
     required this.onTap,
   });
@@ -25,89 +27,52 @@ class _ExperienceStampWidgetState extends State<ExperienceStampWidget> {
 
   @override
   Widget build(BuildContext context) {
+    // Alternating left-right tilt angles: even index tilts left, odd index tilts right
+    final bool isLeft = widget.index % 2 == 0;
+    final double baseAngle = isLeft ? -0.06 : 0.06; // ~3.5 degrees
+    final double selectedExtraAngle = isLeft ? -0.05 : 0.05; // Extra ~3 degrees on selection
+    final double targetAngle = widget.isSelected ? (baseAngle + selectedExtraAngle) : baseAngle;
+
     return GestureDetector(
       onTapDown: (_) => setState(() => _isPressed = true),
       onTapUp: (_) => setState(() => _isPressed = false),
       onTapCancel: () => setState(() => _isPressed = false),
       onTap: widget.onTap,
-      child: AnimatedScale(
-        scale: _isPressed ? 0.94 : (widget.isSelected ? 1.04 : 1.0),
-        duration: const Duration(milliseconds: 150),
+      child: AnimatedRotation(
+        turns: targetAngle / (2 * math.pi),
+        duration: const Duration(milliseconds: 250),
         curve: Curves.easeOutCubic,
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 200),
-          width: 105,
-          height: 125,
-          decoration: ShapeDecoration(
-            color: widget.isSelected
-                ? AppColors.surfaceElevated
-                : AppColors.surfacePrimary,
-            shape: ContinuousRectangleBorder(
-              borderRadius: BorderRadius.circular(24),
-              side: BorderSide(
-                color: widget.isSelected
-                    ? AppColors.accentPurpleLight
-                    : AppColors.borderSubtle,
-                width: widget.isSelected ? 1.5 : 1.0,
+        child: AnimatedScale(
+          scale: _isPressed ? 0.94 : (widget.isSelected ? 1.06 : 1.0),
+          duration: const Duration(milliseconds: 150),
+          curve: Curves.easeOutCubic,
+          child: SizedBox(
+            width: 120,
+            height: 140,
+            child: CachedNetworkImage(
+              imageUrl: widget.isSelected && widget.experience.imageUrl.isNotEmpty
+                  ? widget.experience.imageUrl
+                  : widget.experience.iconUrl,
+              fit: BoxFit.contain,
+              placeholder: (context, url) => const Center(
+                child: SizedBox(
+                  width: 28,
+                  height: 28,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    color: AppColors.accentPurple,
+                  ),
+                ),
               ),
-            ),
-            shadows: widget.isSelected
-                ? [
-                    BoxShadow(
-                      color: AppColors.accentPurple.withValues(alpha: 0.25),
-                      blurRadius: 12,
-                      spreadRadius: 1,
-                    )
-                  ]
-                : null,
-          ),
-          child: Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Expanded(
-                  child: CachedNetworkImage(
-                    imageUrl: widget.isSelected && widget.experience.imageUrl.isNotEmpty
-                        ? widget.experience.imageUrl
-                        : widget.experience.iconUrl,
-                    fit: BoxFit.contain,
-                    placeholder: (context, url) => const Center(
-                      child: SizedBox(
-                        width: 24,
-                        height: 24,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          color: AppColors.accentPurple,
-                        ),
-                      ),
-                    ),
-                    errorWidget: (context, url, error) => CachedNetworkImage(
-                      imageUrl: widget.experience.iconUrl,
-                      fit: BoxFit.contain,
-                      errorWidget: (context, url, error) => Icon(
-                        Icons.local_activity,
-                        color: widget.isSelected
-                            ? AppColors.textPrimary
-                            : AppColors.textSecondary,
-                        size: 36,
-                      ),
-                    ),
-                  ),
+              errorWidget: (context, url, error) => CachedNetworkImage(
+                imageUrl: widget.experience.iconUrl,
+                fit: BoxFit.contain,
+                errorWidget: (context, url, error) => const Icon(
+                  Icons.local_activity,
+                  color: AppColors.textSecondary,
+                  size: 48,
                 ),
-                const SizedBox(height: 6),
-                Text(
-                  widget.experience.name,
-                  style: AppTextStyles.s1Bold.copyWith(
-                    color: widget.isSelected
-                        ? AppColors.textPrimary
-                        : AppColors.textSecondary,
-                  ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  textAlign: TextAlign.center,
-                ),
-              ],
+              ),
             ),
           ),
         ),
