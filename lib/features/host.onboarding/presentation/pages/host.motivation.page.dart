@@ -41,6 +41,8 @@ class _HostMotivationPageState extends ConsumerState<HostMotivationPage> {
     final hasVideoRecorded = motivationState.videoPath != null;
 
     final double progress = motivationState.canProceed ? 1.0 : 0.5;
+    final bool hasSelection = motivationState.motivationText.trim().isNotEmpty || motivationState.hasAudio || motivationState.hasVideo;
+    final Color headingColor = hasSelection ? AppColors.textSecondary : AppColors.textPrimary;
 
     return Scaffold(
       backgroundColor: AppColors.backgroundPrimary,
@@ -86,9 +88,12 @@ class _HostMotivationPageState extends ConsumerState<HostMotivationPage> {
                 style: AppTextStyles.s1Regular.copyWith(color: AppColors.textTertiary),
               ),
               const SizedBox(height: 4),
-              Text(
-                'Why do you want to host with us?',
-                style: AppTextStyles.h1Bold.copyWith(color: AppColors.textPrimary),
+              AnimatedDefaultTextStyle(
+                duration: const Duration(milliseconds: 300),
+                style: AppTextStyles.h1DynamicBold(context, color: headingColor),
+                child: const Text(
+                  'Why do you want to host with us?',
+                ),
               ),
               const SizedBox(height: 8),
               Text(

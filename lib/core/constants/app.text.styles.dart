@@ -28,6 +28,18 @@ class AppTextStyles {
         letterSpacing: 28 * -0.03,
       );
 
+  static TextStyle h1DynamicBold(BuildContext context, {Color? color}) {
+    final screenHeight = MediaQuery.sizeOf(context).height;
+    final fontSize = (screenHeight * 0.031).clamp(20.0, 26.0);
+    return _spaceGrotesk(
+      fontSize: fontSize,
+      fontWeight: FontWeight.w700,
+      height: 32,
+      letterSpacing: fontSize * -0.03,
+      color: color ?? AppColors.textPrimary,
+    );
+  }
+
   static TextStyle get h1Regular => _spaceGrotesk(
         fontSize: 28,
         fontWeight: FontWeight.w400,

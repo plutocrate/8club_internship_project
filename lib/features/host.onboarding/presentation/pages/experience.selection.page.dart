@@ -45,6 +45,8 @@ class _ExperienceSelectionPageState
     final viewModel = ref.read(experienceSelectionViewModelProvider.notifier);
 
     final double progress = selectionState.canProceed ? 0.5 : 0.0;
+    final bool hasSelection = selectionState.selectedIds.isNotEmpty || selectionState.description.trim().isNotEmpty;
+    final Color headingColor = hasSelection ? AppColors.textSecondary : AppColors.textPrimary;
 
     return Scaffold(
       backgroundColor: AppColors.backgroundPrimary,
@@ -93,9 +95,12 @@ class _ExperienceSelectionPageState
                 style: AppTextStyles.s1Regular.copyWith(color: AppColors.textTertiary),
               ),
               const SizedBox(height: 4),
-              Text(
-                'What kind of hotspots do you want to host?',
-                style: AppTextStyles.h1Bold.copyWith(color: AppColors.textPrimary),
+              AnimatedDefaultTextStyle(
+                duration: const Duration(milliseconds: 300),
+                style: AppTextStyles.h1DynamicBold(context, color: headingColor),
+                child: const Text(
+                  'What kind of hotspots do you want to host?',
+                ),
               ),
               const SizedBox(height: 20),
               SizedBox(

@@ -80,17 +80,20 @@ lib/
 ### Installation & Execution
 
 1. Clone the repository:
+
    ```bash
-   git clone <repository_url>
-   cd eightclub
+   git clone https://github.com/plutocrate/8club_internship_project.git
+   cd 8club_internship_project
    ```
 
 2. Install dependencies:
+
    ```bash
    flutter pub get
    ```
 
 3. Run code generation (if modifying models/providers):
+
    ```bash
    flutter pub run build_runner build --delete-conflicting-outputs
    ```

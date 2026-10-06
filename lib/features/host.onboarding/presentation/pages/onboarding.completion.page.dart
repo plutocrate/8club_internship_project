@@ -36,7 +36,7 @@ class OnboardingCompletionPage extends StatelessWidget {
               const SizedBox(height: 32),
               Text(
                 'Application Submitted',
-                style: AppTextStyles.h1Bold.copyWith(color: AppColors.textPrimary),
+                style: AppTextStyles.h1DynamicBold(context, color: AppColors.textPrimary),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 12),
