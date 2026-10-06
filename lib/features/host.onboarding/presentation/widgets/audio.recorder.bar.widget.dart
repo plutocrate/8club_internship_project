@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../../core/constants/app.colors.dart';
+import '../../../../core/constants/app.gradients.dart';
 import '../../../../core/constants/app.text.styles.dart';
 import 'waveform.visualizer.widget.dart';
 
@@ -24,12 +25,12 @@ class AudioRecorderBarWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       decoration: ShapeDecoration(
-        color: AppColors.surfaceSecondary,
+        gradient: AppGradients.cardSheen,
         shape: ContinuousRectangleBorder(
           borderRadius: BorderRadius.circular(24),
-          side: const BorderSide(color: AppColors.borderSubtle),
+          side: const BorderSide(color: Color(0xFF323236)),
         ),
       ),
       child: Column(

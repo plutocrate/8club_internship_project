@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import '../../../../core/constants/app.colors.dart';
 import '../../../../core/constants/app.gradients.dart';
 import '../../../../core/constants/app.text.styles.dart';
@@ -105,43 +106,49 @@ class HostMotivationPage extends ConsumerWidget {
                     ),
                     child: Row(
                       children: [
-                        // Mic Button with gradient during recording
+                        // Mic Button with spotlight sheen during recording
                         AnimatedContainer(
                           duration: const Duration(milliseconds: 200),
                           decoration: isRecording
                               ? ShapeDecoration(
-                                  gradient: AppGradients.micActive,
+                                  gradient: AppGradients.micActiveSpotlight,
                                   shape: ContinuousRectangleBorder(
                                     borderRadius: BorderRadius.circular(28),
                                     side: const BorderSide(
-                                      color: Color(0xFF6E6E70),
-                                      width: 1.2,
+                                      color: Color(0xFF5A5A5E),
+                                      width: 1.0,
                                     ),
                                   ),
-                                  shadows: [
-                                    BoxShadow(
-                                      color: Colors.white.withValues(alpha: 0.1),
-                                      blurRadius: 8,
-                                    )
-                                  ],
                                 )
                               : null,
                           child: IconButton(
                             onPressed: isRecording
                                 ? viewModel.stopAudioRecording
                                 : viewModel.startAudioRecording,
-                            icon: Icon(
-                              isRecording ? Icons.mic : Icons.mic_none,
-                              color: AppColors.textPrimary,
+                            icon: SvgPicture.asset(
+                              'assets/icons/mic.svg',
+                              width: 20,
+                              height: 20,
+                              colorFilter: ColorFilter.mode(
+                                isRecording
+                                    ? AppColors.textPrimary
+                                    : AppColors.textSecondary,
+                                BlendMode.srcIn,
+                              ),
                             ),
                           ),
                         ),
                         Container(width: 1, height: 24, color: AppColors.borderSubtle),
                         IconButton(
                           onPressed: viewModel.recordVideo,
-                          icon: const Icon(
-                            Icons.videocam_outlined,
-                            color: AppColors.textPrimary,
+                          icon: SvgPicture.asset(
+                            'assets/icons/recorder.svg',
+                            width: 20,
+                            height: 20,
+                            colorFilter: const ColorFilter.mode(
+                              AppColors.textSecondary,
+                              BlendMode.srcIn,
+                            ),
                           ),
                         ),
                       ],
@@ -151,7 +158,7 @@ class HostMotivationPage extends ConsumerWidget {
                   Expanded(
                     child: ContinuousButtonWidget(
                       label: 'Next',
-                      icon: Icons.subdirectory_arrow_left,
+                      svgIconPath: 'assets/icons/next.svg',
                       isEnabled: motivationState.canProceed,
                       onPressed: () {
                         Navigator.of(context).push(

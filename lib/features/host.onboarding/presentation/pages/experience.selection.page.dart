@@ -118,7 +118,7 @@ class ExperienceSelectionPage extends ConsumerWidget {
               const SizedBox(height: 16),
               ContinuousButtonWidget(
                 label: 'Next',
-                icon: Icons.subdirectory_arrow_left,
+                svgIconPath: 'assets/icons/next.svg',
                 isEnabled: selectionState.canProceed,
                 onPressed: () {
                   Navigator.of(context).push(

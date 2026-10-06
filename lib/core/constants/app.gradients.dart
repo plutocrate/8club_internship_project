@@ -7,8 +7,8 @@ class AppGradients {
     begin: Alignment.topCenter,
     end: Alignment.bottomCenter,
     colors: [
-      Color(0xFF444446),
-      Color(0xFF222224),
+      Color(0xFF3E3E42),
+      Color(0xFF1C1C20),
     ],
   );
 
@@ -16,17 +16,26 @@ class AppGradients {
     begin: Alignment.topCenter,
     end: Alignment.bottomCenter,
     colors: [
-      Color(0xFF2A2A2C),
-      Color(0xFF161618),
+      Color(0xFF262628),
+      Color(0xFF141416),
     ],
   );
 
-  static const LinearGradient micActive = LinearGradient(
-    begin: Alignment.topCenter,
-    end: Alignment.bottomCenter,
+  static const LinearGradient cardSheen = LinearGradient(
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
     colors: [
-      Color(0xFF4A4A4C),
-      Color(0xFF28282A),
+      Color(0xFF2C2C30),
+      Color(0xFF141416),
+    ],
+  );
+
+  static const LinearGradient micActiveSpotlight = LinearGradient(
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+    colors: [
+      Color(0x40FFFFFF),
+      Color(0x08FFFFFF),
     ],
   );
 }

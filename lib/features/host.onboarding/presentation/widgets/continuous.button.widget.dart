@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import '../../../../core/constants/app.colors.dart';
 import '../../../../core/constants/app.gradients.dart';
 import '../../../../core/constants/app.text.styles.dart';
@@ -7,14 +8,14 @@ class ContinuousButtonWidget extends StatelessWidget {
   final String label;
   final VoidCallback? onPressed;
   final bool isEnabled;
-  final IconData? icon;
+  final String? svgIconPath;
 
   const ContinuousButtonWidget({
     super.key,
     required this.label,
     required this.onPressed,
     this.isEnabled = true,
-    this.icon,
+    this.svgIconPath,
   });
 
   @override
@@ -30,7 +31,7 @@ class ContinuousButtonWidget extends StatelessWidget {
             borderRadius: BorderRadius.all(Radius.circular(32)),
           ),
           child: AnimatedContainer(
-            duration: const Duration(milliseconds: 250),
+            duration: const Duration(milliseconds: 200),
             curve: Curves.easeOutCubic,
             decoration: ShapeDecoration(
               gradient: isEnabled ? AppGradients.buttonEnabled : null,
@@ -39,20 +40,11 @@ class ContinuousButtonWidget extends StatelessWidget {
                 borderRadius: BorderRadius.circular(32),
                 side: BorderSide(
                   color: isEnabled
-                      ? const Color(0xFF5A5A5C)
+                      ? const Color(0xFF68686C)
                       : AppColors.borderSubtle,
-                  width: isEnabled ? 1.2 : 1.0,
+                  width: 1.0,
                 ),
               ),
-              shadows: isEnabled
-                  ? [
-                      BoxShadow(
-                        color: Colors.white.withValues(alpha: 0.08),
-                        blurRadius: 8,
-                        offset: const Offset(0, -1),
-                      ),
-                    ]
-                  : null,
             ),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -65,14 +57,18 @@ class ContinuousButtonWidget extends StatelessWidget {
                         : AppColors.textTertiary,
                   ),
                 ),
-                if (icon != null) ...[
+                if (svgIconPath != null) ...[
                   const SizedBox(width: 8),
-                  Icon(
-                    icon,
-                    size: 18,
-                    color: isEnabled
-                        ? AppColors.textPrimary
-                        : AppColors.textTertiary,
+                  SvgPicture.asset(
+                    svgIconPath!,
+                    width: 18,
+                    height: 18,
+                    colorFilter: ColorFilter.mode(
+                      isEnabled
+                          ? AppColors.textPrimary
+                          : AppColors.textTertiary,
+                      BlendMode.srcIn,
+                    ),
                   ),
                 ],
               ],

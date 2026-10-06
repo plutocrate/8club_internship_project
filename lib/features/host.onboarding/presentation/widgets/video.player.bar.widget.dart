@@ -1,6 +1,8 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:video_player/video_player.dart';
 import '../../../../core/constants/app.colors.dart';
+import '../../../../core/constants/app.gradients.dart';
 import '../../../../core/constants/app.text.styles.dart';
 
 class VideoPlayerBarWidget extends StatelessWidget {
@@ -16,12 +18,12 @@ class VideoPlayerBarWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       decoration: ShapeDecoration(
-        color: AppColors.surfaceSecondary,
+        gradient: AppGradients.cardSheen,
         shape: ContinuousRectangleBorder(
           borderRadius: BorderRadius.circular(24),
-          side: const BorderSide(color: AppColors.borderSubtle),
+          side: const BorderSide(color: Color(0xFF323236)),
         ),
       ),
       child: Row(
@@ -40,16 +42,7 @@ class VideoPlayerBarWidget extends StatelessWidget {
               alignment: Alignment.center,
               children: [
                 if (videoPath != null && File(videoPath!).existsSync())
-                  Image.file(
-                    File(videoPath!),
-                    fit: BoxFit.cover,
-                    width: 48,
-                    height: 48,
-                    errorBuilder: (context, error, stack) => Container(
-                      color: AppColors.surfaceElevated,
-                      child: const Icon(Icons.videocam, color: AppColors.textSecondary),
-                    ),
-                  )
+                  VideoSnapshotWidget(videoPath: videoPath!)
                 else
                   Container(
                     color: AppColors.surfaceElevated,
@@ -97,6 +90,69 @@ class VideoPlayerBarWidget extends StatelessWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class VideoSnapshotWidget extends StatefulWidget {
+  final String videoPath;
+
+  const VideoSnapshotWidget({super.key, required this.videoPath});
+
+  @override
+  State<VideoSnapshotWidget> createState() => _VideoSnapshotWidgetState();
+}
+
+class _VideoSnapshotWidgetState extends State<VideoSnapshotWidget> {
+  VideoPlayerController? _controller;
+  bool _initialized = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _initVideo();
+  }
+
+  Future<void> _initVideo() async {
+    final file = File(widget.videoPath);
+    if (!await file.exists()) return;
+    try {
+      _controller = VideoPlayerController.file(file);
+      await _controller!.initialize();
+      await _controller!.seekTo(Duration.zero);
+      await _controller!.pause();
+      if (mounted) {
+        setState(() => _initialized = true);
+      }
+    } catch (_) {}
+  }
+
+  @override
+  void dispose() {
+    _controller?.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (!_initialized || _controller == null) {
+      return Container(
+        color: AppColors.surfaceElevated,
+        child: const Icon(Icons.videocam, color: AppColors.textSecondary),
+      );
+    }
+    return SizedBox(
+      width: 48,
+      height: 48,
+      child: FittedBox(
+        fit: BoxFit.cover,
+        clipBehavior: Clip.hardEdge,
+        child: SizedBox(
+          width: _controller!.value.size.width,
+          height: _controller!.value.size.height,
+          child: VideoPlayer(_controller!),
+        ),
       ),
     );
   }
