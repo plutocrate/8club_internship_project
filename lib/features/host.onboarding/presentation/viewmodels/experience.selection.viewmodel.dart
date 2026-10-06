@@ -19,7 +19,6 @@ class ExperienceSelectionState {
     );
   }
 
-  // Must select at least 1 card to proceed (text alone does not enable Next)
   bool get canProceed => selectedIds.isNotEmpty;
 }
 
@@ -39,6 +38,10 @@ class ExperienceSelectionViewModel
 
   void updateDescription(String text) {
     state = state.copyWith(description: text);
+  }
+
+  void resetSelection() {
+    state = const ExperienceSelectionState();
   }
 }
 

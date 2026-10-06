@@ -24,11 +24,18 @@ class ExperienceSelectionPage extends ConsumerStatefulWidget {
 class _ExperienceSelectionPageState
     extends ConsumerState<ExperienceSelectionPage> {
   final ScrollController _scrollController = ScrollController();
+  final TextEditingController _textController = TextEditingController();
 
   @override
   void dispose() {
     _scrollController.dispose();
+    _textController.dispose();
     super.dispose();
+  }
+
+  void _onCancelPressed() {
+    _textController.clear();
+    ref.read(experienceSelectionViewModelProvider.notifier).resetSelection();
   }
 
   @override
@@ -74,7 +81,7 @@ class _ExperienceSelectionPageState
                       ),
                     ),
                     IconButton(
-                      onPressed: () {},
+                      onPressed: _onCancelPressed,
                       icon: const Icon(Icons.close, color: AppColors.textPrimary),
                     ),
                   ],
@@ -128,12 +135,13 @@ class _ExperienceSelectionPageState
               ),
               const SizedBox(height: 10),
 
-              // Subtle horizontal scrollbar indicator (1/10th screen width)
+              // Subtle horizontal scrollbar indicator
               StampScrollIndicatorWidget(scrollController: _scrollController),
 
               const SizedBox(height: 16),
               Expanded(
                 child: FocusedTextFieldContainerWidget(
+                  controller: _textController,
                   hintText: '/ Describe your perfect hotspot',
                   onChanged: viewModel.updateDescription,
                 ),

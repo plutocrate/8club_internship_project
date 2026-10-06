@@ -223,6 +223,12 @@ class HostMotivationViewModel extends StateNotifier<HostMotivationState> {
     }
     state = state.copyWith(clearVideoPath: true);
   }
+
+  Future<void> resetMotivation() async {
+    await deleteAudioRecording();
+    await deleteVideoRecording();
+    state = const HostMotivationState();
+  }
 }
 
 final hostMotivationViewModelProvider =

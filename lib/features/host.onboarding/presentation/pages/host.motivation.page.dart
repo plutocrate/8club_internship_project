@@ -11,11 +11,29 @@ import '../widgets/onboarding.progress.bar.widget.dart';
 import '../widgets/paginated.media.container.widget.dart';
 import 'onboarding.completion.page.dart';
 
-class HostMotivationPage extends ConsumerWidget {
+class HostMotivationPage extends ConsumerStatefulWidget {
   const HostMotivationPage({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<HostMotivationPage> createState() => _HostMotivationPageState();
+}
+
+class _HostMotivationPageState extends ConsumerState<HostMotivationPage> {
+  final TextEditingController _textController = TextEditingController();
+
+  @override
+  void dispose() {
+    _textController.dispose();
+    super.dispose();
+  }
+
+  void _onCancelPressed() {
+    _textController.clear();
+    ref.read(hostMotivationViewModelProvider.notifier).resetMotivation();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final motivationState = ref.watch(hostMotivationViewModelProvider);
     final viewModel = ref.read(hostMotivationViewModelProvider.notifier);
     final isRecording = motivationState.audioPhase == AudioRecordingPhase.recording;
@@ -54,7 +72,7 @@ class HostMotivationPage extends ConsumerWidget {
                       ),
                     ),
                     IconButton(
-                      onPressed: () => Navigator.of(context).pop(),
+                      onPressed: _onCancelPressed,
                       icon: const Icon(Icons.close, color: AppColors.textPrimary),
                     ),
                   ],
@@ -78,6 +96,7 @@ class HostMotivationPage extends ConsumerWidget {
               const SizedBox(height: 20),
               Expanded(
                 child: FocusedTextFieldContainerWidget(
+                  controller: _textController,
                   hintText: '/ Start typing here',
                   onChanged: viewModel.updateMotivationText,
                 ),
