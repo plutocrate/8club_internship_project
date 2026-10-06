@@ -7,59 +7,75 @@ import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:record/record.dart';
 
-enum AudioRecordingPhase { idle, recording, recorded }
+enum AudioRecordingPhase { idle, recording }
+
+class AudioRecordingItem {
+  final String id;
+  final String path;
+  final Duration duration;
+
+  const AudioRecordingItem({
+    required this.id,
+    required this.path,
+    required this.duration,
+  });
+
+  String get formattedDuration {
+    final minutes = duration.inMinutes.remainder(60);
+    final seconds = duration.inSeconds.remainder(60);
+    return '${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}';
+  }
+}
 
 class HostMotivationState {
   final String motivationText;
   final AudioRecordingPhase audioPhase;
-  final String? audioPath;
-  final Duration recordingDuration;
+  final Duration activeRecordingDuration;
   final List<double> waveformAmplitudes;
-  final bool isPlayingAudio;
-  final String? videoPath;
+
+  final List<AudioRecordingItem> audioRecordings;
+  final String? playingAudioId;
+
+  final List<String> videoPaths;
 
   const HostMotivationState({
     this.motivationText = '',
     this.audioPhase = AudioRecordingPhase.idle,
-    this.audioPath,
-    this.recordingDuration = Duration.zero,
+    this.activeRecordingDuration = Duration.zero,
     this.waveformAmplitudes = const [],
-    this.isPlayingAudio = false,
-    this.videoPath,
+    this.audioRecordings = const [],
+    this.playingAudioId,
+    this.videoPaths = const [],
   });
 
   HostMotivationState copyWith({
     String? motivationText,
     AudioRecordingPhase? audioPhase,
-    String? audioPath,
-    Duration? recordingDuration,
+    Duration? activeRecordingDuration,
     List<double>? waveformAmplitudes,
-    bool? isPlayingAudio,
-    String? videoPath,
-    bool clearAudioPath = false,
-    bool clearVideoPath = false,
+    List<AudioRecordingItem>? audioRecordings,
+    String? playingAudioId,
+    bool clearPlayingAudioId = false,
+    List<String>? videoPaths,
   }) {
     return HostMotivationState(
       motivationText: motivationText ?? this.motivationText,
       audioPhase: audioPhase ?? this.audioPhase,
-      audioPath: clearAudioPath ? null : (audioPath ?? this.audioPath),
-      recordingDuration: recordingDuration ?? this.recordingDuration,
+      activeRecordingDuration:
+          activeRecordingDuration ?? this.activeRecordingDuration,
       waveformAmplitudes: waveformAmplitudes ?? this.waveformAmplitudes,
-      isPlayingAudio: isPlayingAudio ?? this.isPlayingAudio,
-      videoPath: clearVideoPath ? null : (videoPath ?? this.videoPath),
+      audioRecordings: audioRecordings ?? this.audioRecordings,
+      playingAudioId: clearPlayingAudioId
+          ? null
+          : (playingAudioId ?? this.playingAudioId),
+      videoPaths: videoPaths ?? this.videoPaths,
     );
   }
 
   bool get canProceed =>
       motivationText.trim().isNotEmpty ||
-      audioPhase == AudioRecordingPhase.recorded ||
-      videoPath != null;
-
-  String get formattedDuration {
-    final minutes = recordingDuration.inMinutes.remainder(60);
-    final seconds = recordingDuration.inSeconds.remainder(60);
-    return '${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}';
-  }
+      audioRecordings.isNotEmpty ||
+      videoPaths.isNotEmpty;
 }
 
 class HostMotivationViewModel extends StateNotifier<HostMotivationState> {
@@ -112,7 +128,7 @@ class HostMotivationViewModel extends StateNotifier<HostMotivationState> {
 
     state = state.copyWith(
       audioPhase: AudioRecordingPhase.recording,
-      recordingDuration: Duration.zero,
+      activeRecordingDuration: Duration.zero,
       waveformAmplitudes: [],
     );
   }
@@ -135,8 +151,8 @@ class HostMotivationViewModel extends StateNotifier<HostMotivationState> {
     _durationTimer?.cancel();
     _durationTimer = Timer.periodic(const Duration(seconds: 1), (_) {
       state = state.copyWith(
-        recordingDuration:
-            Duration(seconds: state.recordingDuration.inSeconds + 1),
+        activeRecordingDuration:
+            Duration(seconds: state.activeRecordingDuration.inSeconds + 1),
       );
     });
   }
@@ -146,18 +162,36 @@ class HostMotivationViewModel extends StateNotifier<HostMotivationState> {
     _durationTimer?.cancel();
 
     final path = await _audioRecorder?.stop();
+    final duration = state.activeRecordingDuration;
     await _audioRecorder?.dispose();
     _audioRecorder = null;
 
-    state = state.copyWith(
-      audioPhase: AudioRecordingPhase.recorded,
-      audioPath: path,
-    );
+    if (path != null) {
+      final newItem = AudioRecordingItem(
+        id: DateTime.now().millisecondsSinceEpoch.toString(),
+        path: path,
+        duration: duration,
+      );
+      final updatedList = List<AudioRecordingItem>.from(state.audioRecordings)
+        ..add(newItem);
+
+      state = state.copyWith(
+        audioPhase: AudioRecordingPhase.idle,
+        audioRecordings: updatedList,
+        activeRecordingDuration: Duration.zero,
+        waveformAmplitudes: [],
+      );
+    } else {
+      state = state.copyWith(
+        audioPhase: AudioRecordingPhase.idle,
+        activeRecordingDuration: Duration.zero,
+        waveformAmplitudes: [],
+      );
+    }
   }
 
-  Future<void> playAudioRecording() async {
-    if (state.audioPath == null) return;
-    final file = File(state.audioPath!);
+  Future<void> playAudioRecording(String id, String path) async {
+    final file = File(path);
     if (!await file.exists()) return;
 
     try {
@@ -167,66 +201,73 @@ class HostMotivationViewModel extends StateNotifier<HostMotivationState> {
       }
 
       _audioPlayer = AudioPlayer();
-      await _audioPlayer!.setFilePath(state.audioPath!);
+      await _audioPlayer!.setFilePath(path);
       await _audioPlayer!.setVolume(1.0);
 
       _playerStateSubscription?.cancel();
       _playerStateSubscription = _audioPlayer!.playerStateStream.listen((ps) {
         if (ps.processingState == ProcessingState.completed) {
-          state = state.copyWith(isPlayingAudio: false);
+          state = state.copyWith(clearPlayingAudioId: true);
         }
       });
 
-      state = state.copyWith(isPlayingAudio: true);
+      state = state.copyWith(playingAudioId: id);
       await _audioPlayer!.play();
     } catch (e) {
-      state = state.copyWith(isPlayingAudio: false);
+      state = state.copyWith(clearPlayingAudioId: true);
     }
   }
 
   Future<void> stopAudioPlayback() async {
     await _audioPlayer?.stop();
-    state = state.copyWith(isPlayingAudio: false);
+    state = state.copyWith(clearPlayingAudioId: true);
   }
 
-  Future<void> deleteAudioRecording() async {
-    await _audioPlayer?.stop();
-    await _audioPlayer?.dispose();
-    _audioPlayer = null;
-
-    if (state.audioPath != null) {
-      final file = File(state.audioPath!);
-      if (await file.exists()) await file.delete();
+  Future<void> deleteAudioRecording(String id) async {
+    if (state.playingAudioId == id) {
+      await stopAudioPlayback();
     }
 
-    state = state.copyWith(
-      audioPhase: AudioRecordingPhase.idle,
-      clearAudioPath: true,
-      recordingDuration: Duration.zero,
-      waveformAmplitudes: [],
-      isPlayingAudio: false,
-    );
+    final targetIndex = state.audioRecordings.indexWhere((e) => e.id == id);
+    if (targetIndex != -1) {
+      final item = state.audioRecordings[targetIndex];
+      final file = File(item.path);
+      if (await file.exists()) await file.delete();
+
+      final updatedList = List<AudioRecordingItem>.from(state.audioRecordings)
+        ..removeAt(targetIndex);
+
+      state = state.copyWith(audioRecordings: updatedList);
+    }
   }
 
   Future<void> recordVideo() async {
     final picker = ImagePicker();
     final video = await picker.pickVideo(source: ImageSource.camera);
     if (video != null) {
-      state = state.copyWith(videoPath: video.path);
+      final updatedList = List<String>.from(state.videoPaths)..add(video.path);
+      state = state.copyWith(videoPaths: updatedList);
     }
   }
 
-  Future<void> deleteVideoRecording() async {
-    if (state.videoPath != null) {
-      final file = File(state.videoPath!);
-      if (await file.exists()) await file.delete();
-    }
-    state = state.copyWith(clearVideoPath: true);
+  Future<void> deleteVideoRecording(String path) async {
+    final file = File(path);
+    if (await file.exists()) await file.delete();
+
+    final updatedList = List<String>.from(state.videoPaths)..remove(path);
+    state = state.copyWith(videoPaths: updatedList);
   }
 
   Future<void> resetMotivation() async {
-    await deleteAudioRecording();
-    await deleteVideoRecording();
+    await stopAudioPlayback();
+    for (final audio in state.audioRecordings) {
+      final file = File(audio.path);
+      if (await file.exists()) await file.delete();
+    }
+    for (final videoPath in state.videoPaths) {
+      final file = File(videoPath);
+      if (await file.exists()) await file.delete();
+    }
     state = const HostMotivationState();
   }
 }

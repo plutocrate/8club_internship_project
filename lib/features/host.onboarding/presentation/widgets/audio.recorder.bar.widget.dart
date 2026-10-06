@@ -25,7 +25,7 @@ class AudioRecorderBarWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
       decoration: ShapeDecoration(
         gradient: AppGradients.cardSheen,
         shape: ContinuousRectangleBorder(
@@ -41,14 +41,14 @@ class AudioRecorderBarWidget extends StatelessWidget {
             'Recording Audio...',
             style: AppTextStyles.s1Regular.copyWith(color: AppColors.textSecondary),
           ),
-          const SizedBox(height: 10),
+          const SizedBox(height: 6),
           Row(
             children: [
               GestureDetector(
                 onTap: onStop,
                 child: Container(
-                  width: 36,
-                  height: 36,
+                  width: 34,
+                  height: 34,
                   decoration: const BoxDecoration(
                     color: AppColors.accentPurple,
                     shape: BoxShape.circle,
@@ -56,7 +56,7 @@ class AudioRecorderBarWidget extends StatelessWidget {
                   child: const Icon(
                     Icons.check,
                     color: Colors.white,
-                    size: 20,
+                    size: 18,
                   ),
                 ),
               ),
