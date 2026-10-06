@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/constants/app.colors.dart';
+import '../../../../core/constants/app.gradients.dart';
 import '../../../../core/constants/app.text.styles.dart';
 import '../providers/experiences.provider.dart';
 import '../viewmodels/experience.selection.viewmodel.dart';
@@ -20,7 +21,6 @@ class ExperienceSelectionPage extends ConsumerWidget {
     final selectionState = ref.watch(experienceSelectionViewModelProvider);
     final viewModel = ref.read(experienceSelectionViewModelProvider.notifier);
 
-    // Progress starts at 0.0, fills to 0.5 when at least 1 card is selected
     final double progress = selectionState.canProceed ? 0.5 : 0.0;
 
     return Scaffold(
@@ -31,30 +31,40 @@ class ExperienceSelectionPage extends ConsumerWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const SizedBox(height: 12),
-              Row(
-                children: [
-                  // Back button disabled on screen 1
-                  IconButton(
-                    onPressed: null,
-                    icon: Icon(
-                      Icons.arrow_back,
-                      color: AppColors.textTertiary.withValues(alpha: 0.3),
+              const SizedBox(height: 8),
+              // Top Header with lighter gradient background
+              Container(
+                padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
+                decoration: ShapeDecoration(
+                  gradient: AppGradients.topHeaderLight,
+                  shape: ContinuousRectangleBorder(
+                    borderRadius: BorderRadius.circular(24),
+                    side: const BorderSide(color: AppColors.borderSubtle),
+                  ),
+                ),
+                child: Row(
+                  children: [
+                    IconButton(
+                      onPressed: null,
+                      icon: Icon(
+                        Icons.arrow_back,
+                        color: AppColors.textTertiary.withValues(alpha: 0.3),
+                      ),
                     ),
-                  ),
-                  Expanded(
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                      child: OnboardingProgressBarWidget(progress: progress),
+                    Expanded(
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 12.0),
+                        child: OnboardingProgressBarWidget(progress: progress),
+                      ),
                     ),
-                  ),
-                  IconButton(
-                    onPressed: () {},
-                    icon: const Icon(Icons.close, color: AppColors.textPrimary),
-                  ),
-                ],
+                    IconButton(
+                      onPressed: () {},
+                      icon: const Icon(Icons.close, color: AppColors.textPrimary),
+                    ),
+                  ],
+                ),
               ),
-              const SizedBox(height: 24),
+              const SizedBox(height: 20),
               Text(
                 '01',
                 style: AppTextStyles.s1Regular.copyWith(color: AppColors.textTertiary),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../../core/constants/app.colors.dart';
+import '../../../../core/constants/app.gradients.dart';
 import '../../../../core/constants/app.text.styles.dart';
 
 class ContinuousButtonWidget extends StatelessWidget {
@@ -32,16 +33,7 @@ class ContinuousButtonWidget extends StatelessWidget {
             duration: const Duration(milliseconds: 250),
             curve: Curves.easeOutCubic,
             decoration: ShapeDecoration(
-              gradient: isEnabled
-                  ? const LinearGradient(
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
-                      colors: [
-                        Color(0xFF444446),
-                        Color(0xFF222224),
-                      ],
-                    )
-                  : null,
+              gradient: isEnabled ? AppGradients.buttonEnabled : null,
               color: isEnabled ? null : AppColors.surfacePrimary,
               shape: ContinuousRectangleBorder(
                 borderRadius: BorderRadius.circular(32),
