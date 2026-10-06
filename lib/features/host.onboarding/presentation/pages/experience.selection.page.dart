@@ -6,6 +6,7 @@ import '../providers/experiences.provider.dart';
 import '../viewmodels/experience.selection.viewmodel.dart';
 import '../widgets/continuous.button.widget.dart';
 import '../widgets/experience.stamp.widget.dart';
+import '../widgets/focused.text.field.container.widget.dart';
 import '../widgets/onboarding.progress.bar.widget.dart';
 import '../widgets/shimmer.stamp.widget.dart';
 import 'host.motivation.page.dart';
@@ -92,32 +93,9 @@ class ExperienceSelectionPage extends ConsumerWidget {
               ),
               const SizedBox(height: 20),
               Expanded(
-                child: Container(
-                  padding: const EdgeInsets.all(16),
-                  decoration: ShapeDecoration(
-                    color: AppColors.surfacePrimary,
-                    shape: ContinuousRectangleBorder(
-                      borderRadius: BorderRadius.circular(24),
-                      side: const BorderSide(color: AppColors.borderSubtle),
-                    ),
-                  ),
-                  child: TextField(
-                    maxLines: null,
-                    expands: true,
-                    style: AppTextStyles.b1Regular.copyWith(color: AppColors.textPrimary),
-                    onChanged: viewModel.updateDescription,
-                    decoration: InputDecoration(
-                      hintText: '/ Describe your perfect hotspot',
-                      hintStyle: AppTextStyles.b1Regular.copyWith(
-                        color: AppColors.textPlaceholder,
-                      ),
-                      border: InputBorder.none,
-                      enabledBorder: InputBorder.none,
-                      focusedBorder: InputBorder.none,
-                      fillColor: Colors.transparent,
-                      filled: false,
-                    ),
-                  ),
+                child: FocusedTextFieldContainerWidget(
+                  hintText: '/ Describe your perfect hotspot',
+                  onChanged: viewModel.updateDescription,
                 ),
               ),
               const SizedBox(height: 16),

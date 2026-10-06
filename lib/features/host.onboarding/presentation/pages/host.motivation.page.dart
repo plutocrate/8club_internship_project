@@ -6,6 +6,7 @@ import '../viewmodels/host.motivation.viewmodel.dart';
 import '../widgets/audio.player.bar.widget.dart';
 import '../widgets/audio.recorder.bar.widget.dart';
 import '../widgets/continuous.button.widget.dart';
+import '../widgets/focused.text.field.container.widget.dart';
 import '../widgets/onboarding.progress.bar.widget.dart';
 import '../widgets/video.player.bar.widget.dart';
 import 'onboarding.completion.page.dart';
@@ -17,6 +18,7 @@ class HostMotivationPage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final motivationState = ref.watch(hostMotivationViewModelProvider);
     final viewModel = ref.read(hostMotivationViewModelProvider.notifier);
+    final isRecording = motivationState.audioPhase == AudioRecordingPhase.recording;
 
     return Scaffold(
       backgroundColor: AppColors.backgroundPrimary,
@@ -62,36 +64,14 @@ class HostMotivationPage extends ConsumerWidget {
               ),
               const SizedBox(height: 20),
               Expanded(
-                child: Container(
-                  padding: const EdgeInsets.all(16),
-                  decoration: ShapeDecoration(
-                    color: AppColors.surfacePrimary,
-                    shape: ContinuousRectangleBorder(
-                      borderRadius: BorderRadius.circular(24),
-                      side: const BorderSide(color: AppColors.borderSubtle),
-                    ),
-                  ),
-                  child: TextField(
-                    maxLines: null,
-                    expands: true,
-                    style: AppTextStyles.b1Regular.copyWith(color: AppColors.textPrimary),
-                    onChanged: viewModel.updateMotivationText,
-                    decoration: InputDecoration(
-                      hintText: '/ Start typing here',
-                      hintStyle: AppTextStyles.b1Regular.copyWith(
-                        color: AppColors.textPlaceholder,
-                      ),
-                      border: InputBorder.none,
-                      enabledBorder: InputBorder.none,
-                      focusedBorder: InputBorder.none,
-                      fillColor: Colors.transparent,
-                      filled: false,
-                    ),
-                  ),
+                child: FocusedTextFieldContainerWidget(
+                  hintText: '/ Start typing here',
+                  onChanged: viewModel.updateMotivationText,
                 ),
               ),
               const SizedBox(height: 16),
-              if (motivationState.audioPhase == AudioRecordingPhase.recording)
+              // Media Status Box ABOVE bottom buttons
+              if (isRecording)
                 AudioRecorderBarWidget(
                   duration: motivationState.recordingDuration,
                   amplitudes: motivationState.waveformAmplitudes,
@@ -112,53 +92,88 @@ class HostMotivationPage extends ConsumerWidget {
                 )
               else if (motivationState.videoPath != null)
                 VideoPlayerBarWidget(
+                  videoPath: motivationState.videoPath,
                   onDelete: viewModel.deleteVideoRecording,
                 ),
-              if (motivationState.audioPhase != AudioRecordingPhase.recording) ...[
-                const SizedBox(height: 16),
-                Row(
-                  children: [
-                    Container(
-                      height: 54,
-                      decoration: ShapeDecoration(
-                        color: AppColors.surfaceSecondary,
-                        shape: ContinuousRectangleBorder(
-                          borderRadius: BorderRadius.circular(32),
-                          side: const BorderSide(color: AppColors.borderSubtle),
-                        ),
-                      ),
-                      child: Row(
-                        children: [
-                          IconButton(
-                            onPressed: viewModel.startAudioRecording,
-                            icon: const Icon(Icons.mic_none, color: AppColors.textPrimary),
-                          ),
-                          Container(width: 1, height: 24, color: AppColors.borderSubtle),
-                          IconButton(
-                            onPressed: viewModel.recordVideo,
-                            icon: const Icon(Icons.videocam_outlined, color: AppColors.textPrimary),
-                          ),
-                        ],
+
+              const SizedBox(height: 16),
+
+              // Bottom Action Bar (always present)
+              Row(
+                children: [
+                  Container(
+                    height: 54,
+                    decoration: ShapeDecoration(
+                      color: AppColors.surfaceSecondary,
+                      shape: ContinuousRectangleBorder(
+                        borderRadius: BorderRadius.circular(32),
+                        side: const BorderSide(color: AppColors.borderSubtle),
                       ),
                     ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: ContinuousButtonWidget(
-                        label: 'Next',
-                        icon: Icons.subdirectory_arrow_left,
-                        isEnabled: motivationState.canProceed,
-                        onPressed: () {
-                          Navigator.of(context).push(
-                            MaterialPageRoute(
-                              builder: (context) => const OnboardingCompletionPage(),
+                    child: Row(
+                      children: [
+                        // Mic Button with glow effect during recording
+                        AnimatedContainer(
+                          duration: const Duration(milliseconds: 200),
+                          decoration: isRecording
+                              ? ShapeDecoration(
+                                  color: AppColors.accentPurple.withValues(alpha: 0.3),
+                                  shape: ContinuousRectangleBorder(
+                                    borderRadius: BorderRadius.circular(28),
+                                    side: const BorderSide(
+                                      color: AppColors.accentPurpleLight,
+                                      width: 1.5,
+                                    ),
+                                  ),
+                                  shadows: [
+                                    BoxShadow(
+                                      color: AppColors.accentPurple.withValues(alpha: 0.5),
+                                      blurRadius: 10,
+                                      spreadRadius: 1,
+                                    )
+                                  ],
+                                )
+                              : null,
+                          child: IconButton(
+                            onPressed: isRecording
+                                ? viewModel.stopAudioRecording
+                                : viewModel.startAudioRecording,
+                            icon: Icon(
+                              isRecording ? Icons.mic : Icons.mic_none,
+                              color: isRecording
+                                  ? AppColors.accentPurpleLight
+                                  : AppColors.textPrimary,
                             ),
-                          );
-                        },
-                      ),
+                          ),
+                        ),
+                        Container(width: 1, height: 24, color: AppColors.borderSubtle),
+                        IconButton(
+                          onPressed: viewModel.recordVideo,
+                          icon: const Icon(
+                            Icons.videocam_outlined,
+                            color: AppColors.textPrimary,
+                          ),
+                        ),
+                      ],
                     ),
-                  ],
-                ),
-              ],
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: ContinuousButtonWidget(
+                      label: 'Next',
+                      icon: Icons.subdirectory_arrow_left,
+                      isEnabled: motivationState.canProceed,
+                      onPressed: () {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (context) => const OnboardingCompletionPage(),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                ],
+              ),
               const SizedBox(height: 16),
             ],
           ),
