@@ -23,33 +23,8 @@ class ExperienceStampWidget extends StatefulWidget {
 class _ExperienceStampWidgetState extends State<ExperienceStampWidget> {
   bool _isPressed = false;
 
-  Color _getSelectedColor(String name) {
-    switch (name.toLowerCase()) {
-      case 'party':
-        return const Color(0xFF9E3B24); // Figma terracotta red
-      case 'brunch':
-        return const Color(0xFF2B5B84); // Figma teal blue
-      case 'dinner':
-        return const Color(0xFF3E4A3E); // Figma dark green/grey
-      case 'fitness':
-        return const Color(0xFF2E6F40); // Vibrant green
-      case 'music':
-        return const Color(0xFF6B3A82); // Deep purple
-      case 'travel':
-        return const Color(0xFF8A5A20); // Amber brown
-      case 'picnic':
-        return const Color(0xFF386B52); // Sage green
-      case 'games':
-        return const Color(0xFF8C3256); // Crimson rose
-      default:
-        return AppColors.accentPurple;
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
-    final selectedBgColor = _getSelectedColor(widget.experience.name);
-
     return GestureDetector(
       onTapDown: (_) => setState(() => _isPressed = true),
       onTapUp: (_) => setState(() => _isPressed = false),
@@ -64,22 +39,24 @@ class _ExperienceStampWidgetState extends State<ExperienceStampWidget> {
           width: 105,
           height: 125,
           decoration: ShapeDecoration(
-            color: widget.isSelected ? selectedBgColor : AppColors.surfacePrimary,
+            color: widget.isSelected
+                ? AppColors.surfaceElevated
+                : AppColors.surfacePrimary,
             shape: ContinuousRectangleBorder(
               borderRadius: BorderRadius.circular(24),
               side: BorderSide(
                 color: widget.isSelected
-                    ? selectedBgColor.withValues(alpha: 0.9)
+                    ? AppColors.accentPurpleLight
                     : AppColors.borderSubtle,
-                width: widget.isSelected ? 2.0 : 1.0,
+                width: widget.isSelected ? 1.5 : 1.0,
               ),
             ),
             shadows: widget.isSelected
                 ? [
                     BoxShadow(
-                      color: selectedBgColor.withValues(alpha: 0.5),
-                      blurRadius: 16,
-                      spreadRadius: 2,
+                      color: AppColors.accentPurple.withValues(alpha: 0.25),
+                      blurRadius: 12,
+                      spreadRadius: 1,
                     )
                   ]
                 : null,
