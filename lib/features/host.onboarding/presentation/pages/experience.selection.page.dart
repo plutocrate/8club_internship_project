@@ -48,6 +48,17 @@ class _ExperienceSelectionPageState
     final bool hasSelection = selectionState.selectedIds.isNotEmpty || selectionState.description.trim().isNotEmpty;
     final Color headingColor = hasSelection ? AppColors.textSecondary : AppColors.textPrimary;
 
+    final experiencesList = experiencesAsync.asData?.value ?? [];
+    final selectedExperiences = experiencesList
+        .where((item) => selectionState.selectedIds.contains(item.id))
+        .map((e) => e.name)
+        .toList();
+
+    final String selectedNamesText = selectedExperiences.isNotEmpty
+        ? selectedExperiences.join(', ')
+        : 'Select up to 5 hotspots';
+    final int selectedCount = selectionState.selectedIds.length;
+
     return Scaffold(
       backgroundColor: AppColors.backgroundPrimary,
       body: SafeArea(
@@ -152,17 +163,82 @@ class _ExperienceSelectionPageState
                 ),
               ),
               const SizedBox(height: 16),
-              ContinuousButtonWidget(
-                label: 'Next',
-                svgIconPath: 'assets/icons/next.svg',
-                isEnabled: selectionState.canProceed,
-                onPressed: () {
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (context) => const HostMotivationPage(),
+
+              // Bottom Container with Selected Cards Summary Bar & Next Button
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: ShapeDecoration(
+                  color: AppColors.surfaceSecondary,
+                  shape: ContinuousRectangleBorder(
+                    borderRadius: BorderRadius.circular(28),
+                    side: const BorderSide(color: AppColors.borderSubtle),
+                  ),
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
+                      child: Row(
+                        children: [
+                          Container(
+                            width: 26,
+                            height: 26,
+                            decoration: ShapeDecoration(
+                              color: AppColors.accentPurple.withValues(alpha: 0.25),
+                              shape: ContinuousRectangleBorder(
+                                borderRadius: BorderRadius.circular(10),
+                                side: BorderSide(
+                                  color: AppColors.accentPurpleLight.withValues(alpha: 0.4),
+                                ),
+                              ),
+                            ),
+                            child: const Icon(
+                              Icons.auto_awesome,
+                              size: 14,
+                              color: AppColors.accentPurpleLight,
+                            ),
+                          ),
+                          const SizedBox(width: 10),
+                          Expanded(
+                            child: Text(
+                              selectedNamesText,
+                              style: AppTextStyles.b2Bold.copyWith(
+                                color: selectedExperiences.isNotEmpty
+                                    ? AppColors.textPrimary
+                                    : AppColors.textTertiary,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Text(
+                            selectedCount > 0
+                                ? '$selectedCount/5 (${5 - selectedCount} left)'
+                                : 'Max: 5',
+                            style: AppTextStyles.s1Regular.copyWith(
+                              color: AppColors.textSecondary,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
-                  );
-                },
+                    const SizedBox(height: 10),
+                    ContinuousButtonWidget(
+                      label: 'Next',
+                      svgIconPath: 'assets/icons/next.svg',
+                      isEnabled: selectionState.canProceed,
+                      onPressed: () {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (context) => const HostMotivationPage(),
+                          ),
+                        );
+                      },
+                    ),
+                  ],
+                ),
               ),
               const SizedBox(height: 16),
             ],

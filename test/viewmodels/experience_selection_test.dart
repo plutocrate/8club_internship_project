@@ -34,6 +34,15 @@ void main() {
       expect(viewModel.state.description, equals('Cocktails & House Music'));
     });
 
+    test('Maximum 5 cards limit is enforced', () {
+      for (int i = 1; i <= 6; i++) {
+        viewModel.toggleExperience(i);
+      }
+      expect(viewModel.state.selectedIds.length, equals(5));
+      expect(viewModel.state.selectedIds, containsAll([1, 2, 3, 4, 5]));
+      expect(viewModel.state.selectedIds, isNot(contains(6)));
+    });
+
     test('resetSelection clears all selected stamps and description', () {
       viewModel.toggleExperience(23);
       viewModel.updateDescription('Test text');

@@ -30,7 +30,7 @@ class ExperienceSelectionViewModel
     final updated = Set<int>.from(state.selectedIds);
     if (updated.contains(experienceId)) {
       updated.remove(experienceId);
-    } else {
+    } else if (updated.length < 5) {
       updated.add(experienceId);
     }
     state = state.copyWith(selectedIds: updated);
