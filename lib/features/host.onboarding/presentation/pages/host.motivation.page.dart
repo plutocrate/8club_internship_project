@@ -19,7 +19,15 @@ class HostMotivationPage extends ConsumerStatefulWidget {
 }
 
 class _HostMotivationPageState extends ConsumerState<HostMotivationPage> {
-  final TextEditingController _textController = TextEditingController();
+  late final TextEditingController _textController;
+
+  @override
+  void initState() {
+    super.initState();
+    _textController = TextEditingController(
+      text: ref.read(hostMotivationViewModelProvider).motivationText,
+    );
+  }
 
   @override
   void dispose() {
@@ -44,7 +52,13 @@ class _HostMotivationPageState extends ConsumerState<HostMotivationPage> {
     final bool hasSelection = motivationState.motivationText.trim().isNotEmpty || motivationState.hasAudio || motivationState.hasVideo;
     final Color headingColor = hasSelection ? AppColors.textSecondary : AppColors.textPrimary;
 
-    return Scaffold(
+    return PopScope(
+      onPopInvokedWithResult: (didPop, result) {
+        if (didPop) {
+          ref.read(hostMotivationViewModelProvider.notifier).resetMotivation();
+        }
+      },
+      child: Scaffold(
       backgroundColor: AppColors.backgroundPrimary,
       body: SafeArea(
         child: Padding(
@@ -208,6 +222,7 @@ class _HostMotivationPageState extends ConsumerState<HostMotivationPage> {
           ),
         ),
       ),
-    );
-  }
+    ),
+  );
+}
 }
