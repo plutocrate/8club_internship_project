@@ -27,11 +27,16 @@ class _ExperienceStampWidgetState extends State<ExperienceStampWidget> {
 
   @override
   Widget build(BuildContext context) {
-    // Alternating left-right tilt angles: even index tilts left, odd index tilts right
     final bool isLeft = widget.index % 2 == 0;
-    final double baseAngle = isLeft ? -0.06 : 0.06; // ~3.5 degrees
-    final double selectedExtraAngle = isLeft ? -0.05 : 0.05; // Extra ~3 degrees on selection
-    final double targetAngle = widget.isSelected ? (baseAngle + selectedExtraAngle) : baseAngle;
+    final double baseAngle = isLeft ? -0.06 : 0.06;
+    final double selectedExtraAngle = isLeft ? -0.05 : 0.05;
+    final double targetAngle =
+        widget.isSelected ? (baseAngle + selectedExtraAngle) : baseAngle;
+
+    // Always prefer imageUrl which contains the full stamp artwork & event title
+    final String stampImage = widget.experience.imageUrl.isNotEmpty
+        ? widget.experience.imageUrl
+        : widget.experience.iconUrl;
 
     return GestureDetector(
       onTapDown: (_) => setState(() => _isPressed = true),
@@ -50,9 +55,7 @@ class _ExperienceStampWidgetState extends State<ExperienceStampWidget> {
             width: 120,
             height: 140,
             child: CachedNetworkImage(
-              imageUrl: widget.isSelected && widget.experience.imageUrl.isNotEmpty
-                  ? widget.experience.imageUrl
-                  : widget.experience.iconUrl,
+              imageUrl: stampImage,
               fit: BoxFit.contain,
               placeholder: (context, url) => const Center(
                 child: SizedBox(

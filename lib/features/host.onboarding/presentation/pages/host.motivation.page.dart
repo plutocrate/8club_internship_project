@@ -127,8 +127,8 @@ class HostMotivationPage extends ConsumerWidget {
                                 : viewModel.startAudioRecording,
                             icon: SvgPicture.asset(
                               'assets/icons/mic.svg',
-                              width: 20,
-                              height: 20,
+                              width: 16,
+                              height: 16,
                               colorFilter: ColorFilter.mode(
                                 isRecording
                                     ? AppColors.textPrimary
@@ -143,8 +143,8 @@ class HostMotivationPage extends ConsumerWidget {
                           onPressed: viewModel.recordVideo,
                           icon: SvgPicture.asset(
                             'assets/icons/recorder.svg',
-                            width: 20,
-                            height: 20,
+                            width: 16,
+                            height: 16,
                             colorFilter: const ColorFilter.mode(
                               AppColors.textSecondary,
                               BlendMode.srcIn,

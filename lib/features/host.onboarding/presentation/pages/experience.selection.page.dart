@@ -10,13 +10,29 @@ import '../widgets/experience.stamp.widget.dart';
 import '../widgets/focused.text.field.container.widget.dart';
 import '../widgets/onboarding.progress.bar.widget.dart';
 import '../widgets/shimmer.stamp.widget.dart';
+import '../widgets/stamp.scroll.indicator.widget.dart';
 import 'host.motivation.page.dart';
 
-class ExperienceSelectionPage extends ConsumerWidget {
+class ExperienceSelectionPage extends ConsumerStatefulWidget {
   const ExperienceSelectionPage({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<ExperienceSelectionPage> createState() =>
+      _ExperienceSelectionPageState();
+}
+
+class _ExperienceSelectionPageState
+    extends ConsumerState<ExperienceSelectionPage> {
+  final ScrollController _scrollController = ScrollController();
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final experiencesAsync = ref.watch(experiencesProvider);
     final selectionState = ref.watch(experienceSelectionViewModelProvider);
     final viewModel = ref.read(experienceSelectionViewModelProvider.notifier);
@@ -71,15 +87,16 @@ class ExperienceSelectionPage extends ConsumerWidget {
               ),
               const SizedBox(height: 4),
               Text(
-                'What kind of experiences do you want to host?',
+                'What kind of hotspots do you want to host?',
                 style: AppTextStyles.h1Bold.copyWith(color: AppColors.textPrimary),
               ),
               const SizedBox(height: 20),
               SizedBox(
-                height: 150,
+                height: 145,
                 child: experiencesAsync.when(
                   data: (experiences) {
                     return ListView.separated(
+                      controller: _scrollController,
                       scrollDirection: Axis.horizontal,
                       itemCount: experiences.length,
                       separatorBuilder: (context, index) => const SizedBox(width: 8),
@@ -109,7 +126,12 @@ class ExperienceSelectionPage extends ConsumerWidget {
                   ),
                 ),
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 10),
+
+              // Subtle horizontal scrollbar indicator (1/10th screen width)
+              StampScrollIndicatorWidget(scrollController: _scrollController),
+
+              const SizedBox(height: 16),
               Expanded(
                 child: FocusedTextFieldContainerWidget(
                   hintText: '/ Describe your perfect hotspot',

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../../../core/constants/app.colors.dart';
 import '../../../../core/constants/app.gradients.dart';
 import '../../../../core/constants/app.text.styles.dart';
+import 'waveform.visualizer.widget.dart';
 
 class AudioPlayerBarWidget extends StatelessWidget {
   final String durationText;
@@ -48,10 +49,17 @@ class AudioPlayerBarWidget extends StatelessWidget {
           ),
           const SizedBox(width: 12),
           Expanded(
-            child: Text(
-              'Audio Recorded • $durationText',
-              style: AppTextStyles.b2Regular.copyWith(color: AppColors.textPrimary),
+            child: WaveformVisualizerWidget(
+              amplitudes: isPlaying
+                  ? List.generate(24, (i) => 0.2 + (i % 5) * 0.16)
+                  : List.generate(24, (i) => 0.15),
+              isRecording: isPlaying,
             ),
+          ),
+          const SizedBox(width: 12),
+          Text(
+            durationText,
+            style: AppTextStyles.b2Regular.copyWith(color: AppColors.accentPurpleLight),
           ),
           IconButton(
             onPressed: onDelete,
