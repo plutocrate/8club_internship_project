@@ -100,7 +100,7 @@ class HostMotivationViewModel extends StateNotifier<HostMotivationState> {
     _audioRecorder = AudioRecorder();
 
     await _audioRecorder!.start(
-      const RecordConfig(encoder: AudioEncoder.aacLc, sampleRate: 44100),
+      const RecordConfig(encoder: AudioEncoder.aacLc, sampleRate: 44100, bitRate: 128000),
       path: path,
     );
 
@@ -157,15 +157,31 @@ class HostMotivationViewModel extends StateNotifier<HostMotivationState> {
 
   Future<void> playAudioRecording() async {
     if (state.audioPath == null) return;
-    _audioPlayer = AudioPlayer();
-    await _audioPlayer!.setFilePath(state.audioPath!);
-    await _audioPlayer!.play();
-    state = state.copyWith(isPlayingAudio: true);
-    _playerStateSubscription = _audioPlayer!.playerStateStream.listen((ps) {
-      if (ps.processingState == ProcessingState.completed) {
-        state = state.copyWith(isPlayingAudio: false);
+    final file = File(state.audioPath!);
+    if (!await file.exists()) return;
+
+    try {
+      if (_audioPlayer != null) {
+        await _audioPlayer!.stop();
+        await _audioPlayer!.dispose();
       }
-    });
+
+      _audioPlayer = AudioPlayer();
+      await _audioPlayer!.setFilePath(state.audioPath!);
+      await _audioPlayer!.setVolume(1.0);
+
+      _playerStateSubscription?.cancel();
+      _playerStateSubscription = _audioPlayer!.playerStateStream.listen((ps) {
+        if (ps.processingState == ProcessingState.completed) {
+          state = state.copyWith(isPlayingAudio: false);
+        }
+      });
+
+      state = state.copyWith(isPlayingAudio: true);
+      await _audioPlayer!.play();
+    } catch (e) {
+      state = state.copyWith(isPlayingAudio: false);
+    }
   }
 
   Future<void> stopAudioPlayback() async {

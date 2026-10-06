@@ -16,8 +16,33 @@ class ExperienceStampWidget extends StatelessWidget {
     required this.onTap,
   });
 
+  Color _getSelectedColor(String name) {
+    switch (name.toLowerCase()) {
+      case 'party':
+        return const Color(0xFF9E3B24); // Figma terracotta red
+      case 'brunch':
+        return const Color(0xFF2B5B84); // Figma teal blue
+      case 'dinner':
+        return const Color(0xFF3E4A3E); // Figma dark green/grey
+      case 'fitness':
+        return const Color(0xFF2E6F40); // Vibrant green
+      case 'music':
+        return const Color(0xFF6B3A82); // Deep purple
+      case 'travel':
+        return const Color(0xFF8A5A20); // Amber brown
+      case 'picnic':
+        return const Color(0xFF386B52); // Sage green
+      case 'games':
+        return const Color(0xFF8C3256); // Crimson rose
+      default:
+        return AppColors.accentPurple;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    final selectedBgColor = _getSelectedColor(experience.name);
+
     return GestureDetector(
       onTap: onTap,
       child: AnimatedContainer(
@@ -25,24 +50,22 @@ class ExperienceStampWidget extends StatelessWidget {
         width: 105,
         height: 125,
         decoration: ShapeDecoration(
-          color: isSelected
-              ? AppColors.surfaceElevated
-              : AppColors.surfacePrimary,
+          color: isSelected ? selectedBgColor : AppColors.surfacePrimary,
           shape: ContinuousRectangleBorder(
             borderRadius: BorderRadius.circular(24),
             side: BorderSide(
               color: isSelected
-                  ? AppColors.accentPurple
+                  ? selectedBgColor.withValues(alpha: 0.9)
                   : AppColors.borderSubtle,
-              width: isSelected ? 1.5 : 1.0,
+              width: isSelected ? 2.0 : 1.0,
             ),
           ),
           shadows: isSelected
               ? [
                   BoxShadow(
-                    color: AppColors.accentPurple.withValues(alpha: 0.25),
-                    blurRadius: 12,
-                    spreadRadius: 1,
+                    color: selectedBgColor.withValues(alpha: 0.4),
+                    blurRadius: 14,
+                    spreadRadius: 2,
                   )
                 ]
               : null,
@@ -54,7 +77,9 @@ class ExperienceStampWidget extends StatelessWidget {
             children: [
               Expanded(
                 child: CachedNetworkImage(
-                  imageUrl: experience.iconUrl,
+                  imageUrl: isSelected && experience.imageUrl.isNotEmpty
+                      ? experience.imageUrl
+                      : experience.iconUrl,
                   fit: BoxFit.contain,
                   placeholder: (context, url) => const Center(
                     child: SizedBox(
@@ -66,12 +91,16 @@ class ExperienceStampWidget extends StatelessWidget {
                       ),
                     ),
                   ),
-                  errorWidget: (context, url, error) => Icon(
-                    Icons.local_activity,
-                    color: isSelected
-                        ? AppColors.accentPurpleLight
-                        : AppColors.textSecondary,
-                    size: 36,
+                  errorWidget: (context, url, error) => CachedNetworkImage(
+                    imageUrl: experience.iconUrl,
+                    fit: BoxFit.contain,
+                    errorWidget: (context, url, error) => Icon(
+                      Icons.local_activity,
+                      color: isSelected
+                          ? AppColors.textPrimary
+                          : AppColors.textSecondary,
+                      size: 36,
+                    ),
                   ),
                 ),
               ),
