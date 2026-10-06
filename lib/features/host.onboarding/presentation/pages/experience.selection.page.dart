@@ -20,6 +20,9 @@ class ExperienceSelectionPage extends ConsumerWidget {
     final selectionState = ref.watch(experienceSelectionViewModelProvider);
     final viewModel = ref.read(experienceSelectionViewModelProvider.notifier);
 
+    // Progress starts at 0.0, fills to 0.5 when at least 1 card is selected
+    final double progress = selectionState.canProceed ? 0.5 : 0.0;
+
     return Scaffold(
       backgroundColor: AppColors.backgroundPrimary,
       body: SafeArea(
@@ -31,14 +34,18 @@ class ExperienceSelectionPage extends ConsumerWidget {
               const SizedBox(height: 12),
               Row(
                 children: [
+                  // Back button disabled on screen 1
                   IconButton(
-                    onPressed: () {},
-                    icon: const Icon(Icons.arrow_back, color: AppColors.textPrimary),
+                    onPressed: null,
+                    icon: Icon(
+                      Icons.arrow_back,
+                      color: AppColors.textTertiary.withValues(alpha: 0.3),
+                    ),
                   ),
-                  const Expanded(
+                  Expanded(
                     child: Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 16.0),
-                      child: OnboardingProgressBarWidget(currentStep: 1, totalSteps: 2),
+                      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                      child: OnboardingProgressBarWidget(progress: progress),
                     ),
                   ),
                   IconButton(

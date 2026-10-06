@@ -3,36 +3,39 @@ import 'package:flutter/material.dart';
 import '../../../../core/constants/app.colors.dart';
 
 class OnboardingProgressBarWidget extends StatelessWidget {
-  final int currentStep;
-  final int totalSteps;
+  final double progress; // 0.0 to 1.0
 
   const OnboardingProgressBarWidget({
     super.key,
-    required this.currentStep,
-    required this.totalSteps,
+    required this.progress,
   });
 
   @override
   Widget build(BuildContext context) {
-    final progress = currentStep / totalSteps;
-
-    return CustomPaint(
-      size: const Size(double.infinity, 12),
-      painter: SquigglyWavePainter(
-        progress: progress,
-        activeColor: AppColors.accentPurpleLight,
-        inactiveColor: AppColors.borderMedium,
-      ),
+    return TweenAnimationBuilder<double>(
+      tween: Tween<double>(begin: 0.0, end: progress),
+      duration: const Duration(milliseconds: 350),
+      curve: Curves.easeOutCubic,
+      builder: (context, animatedProgress, child) {
+        return CustomPaint(
+          size: const Size(double.infinity, 12),
+          painter: HanddrawnSquigglyWavePainter(
+            progress: animatedProgress,
+            activeColor: AppColors.accentPurpleLight,
+            inactiveColor: AppColors.borderMedium,
+          ),
+        );
+      },
     );
   }
 }
 
-class SquigglyWavePainter extends CustomPainter {
+class HanddrawnSquigglyWavePainter extends CustomPainter {
   final double progress;
   final Color activeColor;
   final Color inactiveColor;
 
-  SquigglyWavePainter({
+  HanddrawnSquigglyWavePainter({
     required this.progress,
     required this.activeColor,
     required this.inactiveColor,
@@ -41,15 +44,17 @@ class SquigglyWavePainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final activeWidth = size.width * progress.clamp(0.0, 1.0);
-    const waveLength = 14.0;
-    final amplitude = size.height / 2.5;
+    const waveLength = 26.0; // Wider pitch length for handdrawn feel
+    const amplitude = 2.2;   // Gentle, subtle peaks
     final midY = size.height / 2;
 
     Path createWavePath(double startX, double endX) {
       final path = Path();
       bool first = true;
       for (double x = startX; x <= endX; x += 1.0) {
-        final y = midY + amplitude * math.sin((x / waveLength) * 2 * math.pi);
+        // Subtle handdrawn harmonic modulation
+        final mod = 1.0 + 0.1 * math.sin(x * 0.05);
+        final y = midY + amplitude * mod * math.sin((x / waveLength) * 2 * math.pi);
         if (first) {
           path.moveTo(x, y);
           first = false;
@@ -82,7 +87,7 @@ class SquigglyWavePainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(covariant SquigglyWavePainter oldDelegate) {
+  bool shouldRepaint(covariant HanddrawnSquigglyWavePainter oldDelegate) {
     return oldDelegate.progress != progress ||
         oldDelegate.activeColor != activeColor ||
         oldDelegate.inactiveColor != inactiveColor;

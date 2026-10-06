@@ -29,19 +29,38 @@ class ContinuousButtonWidget extends StatelessWidget {
             borderRadius: BorderRadius.all(Radius.circular(32)),
           ),
           child: AnimatedContainer(
-            duration: const Duration(milliseconds: 200),
+            duration: const Duration(milliseconds: 250),
+            curve: Curves.easeOutCubic,
             decoration: ShapeDecoration(
-              color: isEnabled
-                  ? AppColors.surfaceElevated
-                  : AppColors.surfacePrimary,
+              gradient: isEnabled
+                  ? const LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: [
+                        Color(0xFF444446),
+                        Color(0xFF222224),
+                      ],
+                    )
+                  : null,
+              color: isEnabled ? null : AppColors.surfacePrimary,
               shape: ContinuousRectangleBorder(
                 borderRadius: BorderRadius.circular(32),
                 side: BorderSide(
                   color: isEnabled
-                      ? AppColors.borderMedium
+                      ? const Color(0xFF5A5A5C)
                       : AppColors.borderSubtle,
+                  width: isEnabled ? 1.2 : 1.0,
                 ),
               ),
+              shadows: isEnabled
+                  ? [
+                      BoxShadow(
+                        color: Colors.white.withValues(alpha: 0.08),
+                        blurRadius: 8,
+                        offset: const Offset(0, -1),
+                      ),
+                    ]
+                  : null,
             ),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,

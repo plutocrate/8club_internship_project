@@ -19,8 +19,8 @@ class ExperienceSelectionState {
     );
   }
 
-  bool get canProceed =>
-      selectedIds.isNotEmpty || description.trim().isNotEmpty;
+  // Must select at least 1 card to proceed (text alone does not enable Next)
+  bool get canProceed => selectedIds.isNotEmpty;
 }
 
 class ExperienceSelectionViewModel

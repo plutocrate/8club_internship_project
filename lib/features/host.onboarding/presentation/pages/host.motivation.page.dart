@@ -20,6 +20,9 @@ class HostMotivationPage extends ConsumerWidget {
     final viewModel = ref.read(hostMotivationViewModelProvider.notifier);
     final isRecording = motivationState.audioPhase == AudioRecordingPhase.recording;
 
+    // Progress starts at 0.5 (Screen 2), fills to 1.0 when motivation response is provided
+    final double progress = motivationState.canProceed ? 1.0 : 0.5;
+
     return Scaffold(
       backgroundColor: AppColors.backgroundPrimary,
       body: SafeArea(
@@ -35,10 +38,10 @@ class HostMotivationPage extends ConsumerWidget {
                     onPressed: () => Navigator.of(context).pop(),
                     icon: const Icon(Icons.arrow_back, color: AppColors.textPrimary),
                   ),
-                  const Expanded(
+                  Expanded(
                     child: Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 16.0),
-                      child: OnboardingProgressBarWidget(currentStep: 2, totalSteps: 2),
+                      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                      child: OnboardingProgressBarWidget(progress: progress),
                     ),
                   ),
                   IconButton(
@@ -98,7 +101,7 @@ class HostMotivationPage extends ConsumerWidget {
 
               const SizedBox(height: 16),
 
-              // Bottom Action Bar (always present)
+              // Bottom Action Bar
               Row(
                 children: [
                   Container(
@@ -112,24 +115,30 @@ class HostMotivationPage extends ConsumerWidget {
                     ),
                     child: Row(
                       children: [
-                        // Mic Button with glow effect during recording
+                        // Mic Button with whitish/grey gradient during recording (matching enabled theme)
                         AnimatedContainer(
                           duration: const Duration(milliseconds: 200),
                           decoration: isRecording
                               ? ShapeDecoration(
-                                  color: AppColors.accentPurple.withValues(alpha: 0.3),
+                                  gradient: const LinearGradient(
+                                    begin: Alignment.topCenter,
+                                    end: Alignment.bottomCenter,
+                                    colors: [
+                                      Color(0xFF4A4A4C),
+                                      Color(0xFF28282A),
+                                    ],
+                                  ),
                                   shape: ContinuousRectangleBorder(
                                     borderRadius: BorderRadius.circular(28),
                                     side: const BorderSide(
-                                      color: AppColors.accentPurpleLight,
-                                      width: 1.5,
+                                      color: Color(0xFF6E6E70),
+                                      width: 1.2,
                                     ),
                                   ),
                                   shadows: [
                                     BoxShadow(
-                                      color: AppColors.accentPurple.withValues(alpha: 0.5),
-                                      blurRadius: 10,
-                                      spreadRadius: 1,
+                                      color: Colors.white.withValues(alpha: 0.1),
+                                      blurRadius: 8,
                                     )
                                   ],
                                 )
@@ -140,9 +149,7 @@ class HostMotivationPage extends ConsumerWidget {
                                 : viewModel.startAudioRecording,
                             icon: Icon(
                               isRecording ? Icons.mic : Icons.mic_none,
-                              color: isRecording
-                                  ? AppColors.accentPurpleLight
-                                  : AppColors.textPrimary,
+                              color: AppColors.textPrimary,
                             ),
                           ),
                         ),
