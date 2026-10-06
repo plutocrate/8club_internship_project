@@ -25,15 +25,25 @@ class ExperienceStampWidget extends StatefulWidget {
 class _ExperienceStampWidgetState extends State<ExperienceStampWidget> {
   bool _isPressed = false;
 
+  // Standard greyscale transformation matrix
+  static const ColorFilter _greyscaleFilter = ColorFilter.matrix(<double>[
+    0.2126, 0.7152, 0.0722, 0, 0,
+    0.2126, 0.7152, 0.0722, 0, 0,
+    0.2126, 0.7152, 0.0722, 0, 0,
+    0,      0,      0,      1, 0,
+  ]);
+
+  static const ColorFilter _identityFilter =
+      ColorFilter.mode(Colors.transparent, BlendMode.dst);
+
   @override
   Widget build(BuildContext context) {
+    // Unselected = straight (0.0 rad), Selected = tilted alternating left (-0.07 rad) / right (0.07 rad)
     final bool isLeft = widget.index % 2 == 0;
-    final double baseAngle = isLeft ? -0.06 : 0.06;
-    final double selectedExtraAngle = isLeft ? -0.05 : 0.05;
-    final double targetAngle =
-        widget.isSelected ? (baseAngle + selectedExtraAngle) : baseAngle;
+    final double targetAngle = widget.isSelected
+        ? (isLeft ? -0.07 : 0.07)
+        : 0.0;
 
-    // Always prefer imageUrl which contains the full stamp artwork & event title
     final String stampImage = widget.experience.imageUrl.isNotEmpty
         ? widget.experience.imageUrl
         : widget.experience.iconUrl;
@@ -54,26 +64,29 @@ class _ExperienceStampWidgetState extends State<ExperienceStampWidget> {
           child: SizedBox(
             width: 120,
             height: 140,
-            child: CachedNetworkImage(
-              imageUrl: stampImage,
-              fit: BoxFit.contain,
-              placeholder: (context, url) => const Center(
-                child: SizedBox(
-                  width: 28,
-                  height: 28,
-                  child: CircularProgressIndicator(
-                    strokeWidth: 2,
-                    color: AppColors.accentPurple,
+            child: ColorFiltered(
+              colorFilter: widget.isSelected ? _identityFilter : _greyscaleFilter,
+              child: CachedNetworkImage(
+                imageUrl: stampImage,
+                fit: BoxFit.contain,
+                placeholder: (context, url) => const Center(
+                  child: SizedBox(
+                    width: 28,
+                    height: 28,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      color: AppColors.accentPurple,
+                    ),
                   ),
                 ),
-              ),
-              errorWidget: (context, url, error) => CachedNetworkImage(
-                imageUrl: widget.experience.iconUrl,
-                fit: BoxFit.contain,
-                errorWidget: (context, url, error) => const Icon(
-                  Icons.local_activity,
-                  color: AppColors.textSecondary,
-                  size: 48,
+                errorWidget: (context, url, error) => CachedNetworkImage(
+                  imageUrl: widget.experience.iconUrl,
+                  fit: BoxFit.contain,
+                  errorWidget: (context, url, error) => const Icon(
+                    Icons.local_activity,
+                    color: AppColors.textSecondary,
+                    size: 48,
+                  ),
                 ),
               ),
             ),

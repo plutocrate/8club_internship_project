@@ -84,7 +84,7 @@ class _PaginatedMediaContainerWidgetState
       mainAxisSize: MainAxisSize.min,
       children: [
         SizedBox(
-          height: 72,
+          height: 88,
           child: PageView(
             controller: _pageController,
             onPageChanged: (index) {

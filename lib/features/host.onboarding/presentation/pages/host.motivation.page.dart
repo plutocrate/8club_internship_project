@@ -95,10 +95,11 @@ class HostMotivationPage extends ConsumerWidget {
               // Bottom Action Bar
               Row(
                 children: [
+                  // Icon Holder with transparent background & subtle border
                   Container(
                     height: 54,
                     decoration: ShapeDecoration(
-                      color: AppColors.surfaceSecondary,
+                      color: Colors.transparent,
                       shape: ContinuousRectangleBorder(
                         borderRadius: BorderRadius.circular(32),
                         side: const BorderSide(color: AppColors.borderSubtle),
