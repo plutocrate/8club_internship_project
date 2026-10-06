@@ -1,13 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/constants/app.colors.dart';
 import '../../../../core/constants/app.text.styles.dart';
+import '../viewmodels/experience.selection.viewmodel.dart';
+import '../viewmodels/host.motivation.viewmodel.dart';
 import '../widgets/continuous.button.widget.dart';
 
-class OnboardingCompletionPage extends StatelessWidget {
+class OnboardingCompletionPage extends ConsumerWidget {
   const OnboardingCompletionPage({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
       backgroundColor: AppColors.backgroundPrimary,
       body: SafeArea(
@@ -49,6 +52,8 @@ class OnboardingCompletionPage extends StatelessWidget {
               ContinuousButtonWidget(
                 label: 'Back to Start',
                 onPressed: () {
+                  ref.read(experienceSelectionViewModelProvider.notifier).resetSelection();
+                  ref.read(hostMotivationViewModelProvider.notifier).resetMotivation();
                   Navigator.of(context).popUntil((route) => route.isFirst);
                 },
               ),
