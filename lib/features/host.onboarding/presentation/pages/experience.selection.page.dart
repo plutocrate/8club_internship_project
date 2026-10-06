@@ -46,6 +46,14 @@ class _ExperienceSelectionPageState
     final selectionState = ref.watch(experienceSelectionViewModelProvider);
     final viewModel = ref.read(experienceSelectionViewModelProvider.notifier);
 
+    // Keep _textController in sync with selectionState.description (e.g., when resetSelection is called)
+    if (_textController.text != selectionState.description) {
+      _textController.value = TextEditingValue(
+        text: selectionState.description,
+        selection: TextSelection.collapsed(offset: selectionState.description.length),
+      );
+    }
+
     final double progress = selectionState.canProceed ? 0.5 : 0.0;
     final bool hasSelection = selectionState.selectedIds.isNotEmpty || selectionState.description.trim().isNotEmpty;
     final Color headingColor = hasSelection ? AppColors.textSecondary : AppColors.textPrimary;

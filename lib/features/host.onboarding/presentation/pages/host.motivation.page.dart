@@ -44,6 +44,15 @@ class _HostMotivationPageState extends ConsumerState<HostMotivationPage> {
   Widget build(BuildContext context) {
     final motivationState = ref.watch(hostMotivationViewModelProvider);
     final viewModel = ref.read(hostMotivationViewModelProvider.notifier);
+
+    // Keep _textController in sync with motivationState.motivationText (e.g., when resetMotivation is called)
+    if (_textController.text != motivationState.motivationText) {
+      _textController.value = TextEditingValue(
+        text: motivationState.motivationText,
+        selection: TextSelection.collapsed(offset: motivationState.motivationText.length),
+      );
+    }
+
     final isRecording = motivationState.audioPhase == AudioRecordingPhase.recording;
     final hasAudioRecorded = motivationState.audioPhase == AudioRecordingPhase.recorded;
     final hasVideoRecorded = motivationState.videoPath != null;
