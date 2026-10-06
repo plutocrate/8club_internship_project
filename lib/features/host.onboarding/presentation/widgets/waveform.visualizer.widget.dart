@@ -13,26 +13,34 @@ class WaveformVisualizerWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final bars = amplitudes.isEmpty
-        ? List.generate(24, (i) => 0.15 + (i % 5) * 0.1)
-        : amplitudes;
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final availableWidth = constraints.maxWidth;
+        // Each bar is 3px wide with 3px spacing -> 6px total width per bar
+        const itemWidth = 6.0;
+        final count = (availableWidth / itemWidth).floor().clamp(6, 28);
 
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: List.generate(bars.length, (index) {
-        final heightFactor = bars[index];
-        return AnimatedContainer(
-          duration: const Duration(milliseconds: 100),
-          margin: const EdgeInsets.symmetric(horizontal: 2.0),
-          width: 3.5,
-          height: 32 * heightFactor.clamp(0.1, 1.0),
-          decoration: BoxDecoration(
-            color: isRecording ? AppColors.accentPurpleLight : AppColors.textSecondary,
-            borderRadius: BorderRadius.circular(2),
-          ),
+        final bars = amplitudes.isEmpty
+            ? List.generate(count, (i) => 0.15 + (i % 5) * 0.1)
+            : amplitudes.take(count).toList();
+
+        return Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: List.generate(bars.length, (index) {
+            final heightFactor = bars[index];
+            return AnimatedContainer(
+              duration: const Duration(milliseconds: 100),
+              width: 3.0,
+              height: 28 * heightFactor.clamp(0.1, 1.0),
+              decoration: BoxDecoration(
+                color: isRecording ? AppColors.accentPurpleLight : AppColors.textSecondary,
+                borderRadius: BorderRadius.circular(2),
+              ),
+            );
+          }),
         );
-      }),
+      },
     );
   }
 }

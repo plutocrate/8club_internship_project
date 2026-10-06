@@ -47,21 +47,24 @@ class AudioPlayerBarWidget extends StatelessWidget {
               ),
             ),
           ),
-          const SizedBox(width: 12),
+          const SizedBox(width: 8),
           Expanded(
             child: WaveformVisualizerWidget(
               amplitudes: isPlaying
-                  ? List.generate(24, (i) => 0.2 + (i % 5) * 0.16)
-                  : List.generate(24, (i) => 0.15),
+                  ? List.generate(16, (i) => 0.2 + (i % 5) * 0.16)
+                  : const [],
               isRecording: isPlaying,
             ),
           ),
-          const SizedBox(width: 12),
+          const SizedBox(width: 8),
           Text(
             durationText,
             style: AppTextStyles.b2Regular.copyWith(color: AppColors.accentPurpleLight),
           ),
+          const SizedBox(width: 4),
           IconButton(
+            padding: EdgeInsets.zero,
+            constraints: const BoxConstraints(),
             onPressed: onDelete,
             icon: const Icon(
               Icons.delete_outline,
