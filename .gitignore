@@ -46,4 +46,8 @@ app.*.map.json
 
 # Widget Preview related
 .widget_preview/
+# Private learning docs and recording script
 learn/
+learn.md
+record_script.md
+
